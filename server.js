@@ -7,13 +7,23 @@ import jobRoutes from './routes/jobRoutes.js';
 
 dotenv.config();
 
+// Connect DB
 connectDB();
 
 const app = express();
 
+// Middleware
 app.use(express.json());
-app.use(cors());
 
+// ✅ CORS FIX (IMPORTANT - add your frontend URL here)
+app.use(
+  cors({
+    origin: "https://myproject-frontend-nu.vercel.app/",
+    credentials: true,
+  })
+);
+
+// Logger (only in development)
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
@@ -23,10 +33,10 @@ app.get('/', (req, res) => {
   res.send('API Running...');
 });
 
-// Routes
+// API Routes
 app.use('/api/jobs', jobRoutes);
 
-// 404
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     message: `Not Found - ${req.originalUrl}`
@@ -43,6 +53,7 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Server start
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
