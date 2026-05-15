@@ -15,10 +15,10 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-// ✅ CORS FIX (IMPORTANT - add your frontend URL here)
+// ✅ CORS FIX (IMPORTANT)
 app.use(
   cors({
-    origin: "https://myproject-frontend-nu.vercel.app/",
+    origin: "https://myproject-frontend-nu.vercel.app",
     credentials: true,
   })
 );
@@ -53,9 +53,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Server start
-const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
+export default app;
