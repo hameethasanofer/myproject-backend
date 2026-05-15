@@ -7,8 +7,16 @@ import jobRoutes from './routes/jobRoutes.js';
 
 dotenv.config();
 
-// Connect DB
-connectDB();
+// Ensure DB is connected before each request (critical for Vercel serverless)
+const dbMiddleware = async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error('DB connection failed:', error.message);
+    res.status(500).json({ message: 'Database connection error' });
+  }
+};
 
 const app = express();
 
@@ -46,8 +54,8 @@ app.get('/', (req, res) => {
   res.send('API Running...');
 });
 
-// API Routes
-app.use('/api/jobs', jobRoutes);
+// API Routes — DB middleware applied before all API routes
+app.use('/api/jobs', dbMiddleware, jobRoutes);
 
 // 404 handler
 app.use((req, res) => {
