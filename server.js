@@ -15,10 +15,23 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-// ✅ CORS FIX (IMPORTANT)
+// ✅ CORS FIX — Allow both local dev and production
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "https://myproject-frontend-nu.vercel.app",
+];
+
 app.use(
   cors({
-    origin: "https://myproject-frontend-nu.vercel.app",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. curl, Postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS policy: Origin ${origin} not allowed`));
+    },
     credentials: true,
   })
 );
@@ -54,5 +67,12 @@ app.use((err, req, res, next) => {
 });
 
 
+// Start server locally (not on Vercel serverless)
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
 
 export default app;
